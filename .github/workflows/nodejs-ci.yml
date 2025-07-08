@@ -1,12 +1,43 @@
-# .github/workflows/test.yml
-name: Test CI Trigger
+name: Node.js CI Pipeline
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
 
 jobs:
-  test:
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
+
     steps:
-      - run: echo "✅ GitHub Actions is working!"
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 💾 Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🧪 Run tests
+        run: npm test
+
+      - name: ✅ Success
+        if: success()
+        run: echo "🎉 Tests passed! You're a CI/CD ninja, Vikky!"
+
+      - name: ❌ Failure
+        if: failure()
+        run: echo "🔥 Tests failed. Fix it before merging."
