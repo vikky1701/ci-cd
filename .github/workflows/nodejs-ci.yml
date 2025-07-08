@@ -1,0 +1,12 @@
+# .github/workflows/test.yml
+name: Test CI Trigger
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "✅ GitHub Actions is working!"
